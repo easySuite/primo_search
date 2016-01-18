@@ -1,0 +1,31 @@
+<?php
+/**
+ * @file
+ * Implementation of default hooks for primo service integration.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function primo_search_menu() {
+  $items['admin/config/primo'] = array(
+    'title' => 'Primo',
+    'description' => 'Use primo service',
+    'weight' => 1,
+    'position' => 'right',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('access administration pages'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+  $items['admin/config/primo/search'] = array(
+    'title' => 'Primo search',
+    'description' => 'Administration page for the primo search service integration',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('primo_search_admin_form'),
+    'access arguments' => array('access administration pages'),
+    'file' => 'primo_search.admin.inc',
+    'file path' => drupal_get_path('module', 'primo_search'),
+  );
+  return $items;
+}
