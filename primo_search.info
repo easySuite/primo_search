@@ -4,6 +4,7 @@ core = 7.x
 
 dependencies[] = page_manager
 dependencies[] = panels
+dependencies[] = ting_covers
 
 configure = admin/config/primo/primo-search
 

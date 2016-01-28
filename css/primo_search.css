@@ -1,0 +1,25 @@
+.primo-image {
+  float: left;
+  margin: 20px;
+}
+.primo-content {
+  float: left;
+  margin-top: 15px;
+  width: 80%;
+  line-height: 20px;
+}
+#primo-search-select-form {
+  clear: left;
+  float: left;
+}
+.primo-search-results {
+  clear: left;
+}
+.primo-search-item {
+  float: left;
+  width: 50%;
+}
+.primo-search-item h2.primo-title {
+  font-size: 120%;
+  font-size: 120%;
+}
