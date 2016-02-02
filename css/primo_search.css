@@ -21,5 +21,175 @@
 }
 .primo-search-item h2.primo-title {
   font-size: 120%;
-  font-size: 120%;
+}
+
+/**
+ * Carousel styles.
+ */
+.primo-carousel-cover {
+  margin-right: 20px;
+  position: relative;
+  width: 135px;
+  float: left;
+}
+.primo-carousel-cover .primo-cover-title {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  background-color: rgba(0, 0, 0, 0.75);
+  bottom: 0;
+  color: #ffffff;
+  left: 0;
+  padding: 10px 15px;
+  position: absolute;
+  max-height: 250px;
+  width: 135px;
+  text-align: center;
+}
+.rs-carousel-action-prev,
+.rs-carousel-action-next {
+  height: 55px;
+  overflow: hidden;
+  margin-top: -27px;
+  position: absolute;
+  text-indent: -1000px;
+  top: 50%;
+  width: 55px;
+}
+.rs-carousel,
+.rs-carousel-mask,
+.rs-carousel-runner,
+.rs-carousel-items {
+  position: relative;
+}
+.rs-carousel-items .rs-carousel-action-next {
+  background-position: right 0;
+  right: 0;
+}
+
+
+.rs-carousel,
+.rs-carousel-mask,
+.rs-carousel-runner {
+  position: relative;
+}
+
+.rs-carousel-mask,
+.rs-carousel-runner {
+  overflow: hidden;
+}
+
+.rs-carousel-inner {
+  overflow: hidden;
+}
+
+.rs-carousel-runner {
+  -moz-transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  -o-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+
+.rs-carousel-transition .rs-carousel-runner {
+  -moz-transition: -moz-transform .400s ease;
+  -webkit-transition: -webkit-transform .400s ease;
+  -o-transition: -o-transform .400s ease;
+  -ms-transition: -ms-transform .400s ease;
+  transition: transform .400s ease;
+}
+
+/* Pagination and previous and next buttons
+   ========================================================================== */
+.rs-carousel-action-prev,
+.rs-carousel-action-next {
+  background-image: url('../img/arrows.png');
+  height: 55px;
+  overflow: hidden;
+  margin-top: -27px;
+  position: absolute;
+  text-indent: -1000px;
+  top: 50%;
+  width: 55px;
+}
+
+.rs-carousel-action-next {
+  background-position: right 0;
+  right: 0;
+}
+
+.rs-carousel-disabled .rs-carousel-action-prev,
+.rs-carousel-disabled .rs-carousel-action-next {
+  display: none;
+}
+
+
+/* Carousel content, mask, title etc.
+   ========================================================================== */
+.ajax-loader {
+  background: transparent url('../img/ajax-loader.gif') no-repeat center center;
+  left: 50%;
+  height: 20px;
+  margin-top: -10px;
+  margin-left: -110px;
+  position: absolute;
+  top: 50%;
+  width: 220px;
+}
+
+.rs-carousel-mask,
+.rs-carousel-mask ul {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.rs-carousel-mask {
+  width: 100%;
+}
+
+.rs-carousel-mask ul {
+  margin: 0;
+  list-style: none;
+}
+
+.rs-carousel-mask li {
+  float: left;
+  width: 100px;
+  text-align: center;
+}
+
+.rs-carousel-item-image {
+  display: block;
+}
+
+.rs-carousel-item-image img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+/* Carousel tabs
+   ========================================================================== */
+.rs-carousel-tabs ul {
+  margin: 0;
+  position: relative;
+  text-align: center;
+}
+
+.rs-carousel-tabs ul li {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+  height: 50px;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.rs-carousel-tabs ul li.active a {
+  position: relative;
+}
+
+.rs-carousel-tabs .rs-carousel-list-tabs .rs-carousel-item a {
+  white-space: nowrap;
+  padding: 10px;
 }
