@@ -38,7 +38,7 @@ function primo_search_carousel_render($subtype, $conf, $args, $contexts) {
       ),
       'js' => array(
         $path . '/js/jquery.rs.carousel.js',
-        $path . '/js/primo_search.js',
+        $path . '/js/primo_search.carousel.js',
       ),
     ),
   );
