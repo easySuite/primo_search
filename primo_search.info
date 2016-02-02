@@ -1,5 +1,12 @@
 name = Primo Search
-description = Perform the search using the Primo service
+description = Perform the search using the Primo service.
 core = 7.x
+
+dependencies[] = page_manager
+dependencies[] = panels
+dependencies[] = ting_covers
+
 configure = admin/config/primo/primo-search
+
 files[] = primo_search.admin.inc
+files[] = lib/PrimoSearchService.class.php
