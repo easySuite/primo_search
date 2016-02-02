@@ -27,5 +27,278 @@ function primo_search_menu() {
     'file' => 'primo_search.admin.inc',
     'file path' => drupal_get_path('module', 'primo_search'),
   );
+  $items['primo/results/ajax'] = array(
+    'title' => 'Primo carousel items',
+    'description' => 'Ajax page for primo carousel items',
+    'page callback' => 'primo_search_results_ajax',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
   return $items;
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function primo_search_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/content_types';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function primo_search_theme($existing, $type, $theme, $path) {
+  return array(
+    'primo_search_item' => array(
+      'variables' => array(),
+      'template' => 'primo-search-item',
+      'path' => $path . '/templates',
+    ),
+    'primo_search_grid' => array(
+      'variables' => array(),
+      'template' => 'primo-search-grid',
+      'path' => $path . '/templates',
+    ),
+    'primo_carousel_cover' => array(
+      'variables' => array(),
+      'template' => 'primo-carousel-cover',
+      'path' => $path . '/templates',
+    ),
+    'primo_search_carousel' => array(
+      'variables' => array(),
+      'template' => 'primo-search-carousel',
+      'path' => $path . '/templates',
+    ),
+    'primo_image' => array(
+      'variables' => array(
+        'style_name' => NULL,
+        'path' => NULL,
+        'alt' => NULL,
+        'title' => NULL,
+        'attributes' => array(),
+        'remote' => NULL,
+      ),
+    ),
+  );
+}
+
+/**
+ * Load primo items from service based on subject id.
+ *
+ * @param $subject_id
+ *   Unique code that is passed to the primo find request.
+ *
+ * @return array
+ *   Array of primo raw items.
+ */
+function primo_search_get_items_by_subject($subject_id) {
+  $primo_link = variable_get('primo_search_host', '');
+  $ps = new PrimoSearchService($primo_link);
+
+  // Prepare parameters for find query.
+  $find_params = array(
+    'code' => 'wtv',
+    'base' => 'dabdab',
+    'request' => check_plain($subject_id),
+  );
+  $find = $ps->findPrimoItems($find_params);
+
+  // Prepare parameters for present query.
+  $set_count = variable_get('primo_search_set_count', 50);
+  $present_params = array(
+    'format' => 'marc',
+    'set_no' => $find->set_number,
+    'set_entry' => '000000001-' . $set_count,
+  );
+  $items = $ps->presentPrimoItems($present_params);
+
+  return $items;
+}
+
+/**
+ * Filter primo search fields from primo object.
+ *
+ * @param $fields
+ *   Primo object.
+ *
+ * @return array
+ *   Array of book info fields ready to be rendered.
+ */
+function _primo_search_filter_fields($fields) {
+  $item = array();
+  foreach ($fields->varfield as $field) {
+    $subfield = $field->subfield;
+    switch ($field->attributes()->id) {
+      case '021':
+        $isbn = (string) $subfield[0];
+        $isbn = $isbn = str_replace('-', '', $isbn);
+        $item['isbn'] = $isbn;
+        $item['image'] = _primo_search_download_cover($isbn);
+        break;
+      case '245':
+        $item['title'] = (string) $subfield[0];
+        break;
+      case '250':
+        $item['udg'] = (string) $subfield[0];
+        break;
+      case '300':
+        $item['pages'] = (string) $subfield;
+        break;
+      case '700':
+        $item['author_name'] = (string) $subfield[1];
+        $item['author_surname'] = (string) $subfield[0];
+        break;
+      case '710':
+        $item['institution'] = (string) $subfield[0];
+        break;
+      case '592':
+        $category = (string) $subfield[0];
+        $category_arr = explode(' ', $category);
+        $item['category'] = isset($category_arr[1]) ? $category_arr[1]: FALSE;
+        break;
+    }
+  }
+
+  return $item;
+}
+
+/**
+ * Theme image of the item based on the url and image style.
+ *
+ * @param $variables
+ *   Default parameters for image theme: style name, image path.
+ *
+ * @return string
+ *   Html code of the image.
+ */
+function theme_primo_image($variables) {
+  $style_path = image_style_path($variables['style_name'], $variables['path']);
+  if (!file_exists($style_path)) {
+    $style = image_style_load($variables['style_name']);
+    image_style_create_derivative($style, $variables['path'], $style_path);
+  }
+  $variables['path'] = $style_path;
+
+  return theme('image', $variables);
+}
+
+/**
+ * Fetch the link to the primo item based on its doc_number.
+ *
+ * @param $doc_number
+ *   Unique identifier of the item on service.
+ *
+ * @return string
+ *   Url on the primo search site.
+ */
+function _primo_search_title_link($doc_number) {
+  $query = 'DABPR' . $doc_number;
+  $params = array(
+    'mode' => 'Basic',
+    'vl(freeText0)' => $query,
+    'fn' => 'search',
+    'doc' => $query,
+  );
+  $http_query = drupal_http_build_query($params);
+  $bib_link = variable_get('primo_search_lib_url', '');
+  $search_query = implode('?', array($bib_link, $http_query));
+
+  return $search_query;
+}
+
+/**
+ * Get url of the book cover form the ADDI service based on book isbn.
+ *
+ * @param $isbn
+ *   isbn identifier of a book.
+ *
+ * @return mixed
+ *   image url or FALSE if the cover image is missing.
+ */
+function _primo_search_cover_url($isbn) {
+  $service = new AdditionalInformationService(variable_get('addi_wsdl_url'), variable_get('addi_username'), variable_get('addi_group'), variable_get('addi_password'));
+  $info = $service->getByIsbn($isbn);
+  $image = (!empty($info)) ? $info[$isbn] : FALSE;
+
+  return ($image) ? $image->detailUrl : FALSE;
+}
+
+/**
+ * Download cover image of the book based on the it's isbn identifier.
+ *
+ * @param $isbn
+ *   isbn identifier.
+ *
+ * @return mixed
+ *   File path or FALSE if image is not accessible.
+ */
+function _primo_search_download_cover($isbn) {
+  $destination = file_default_scheme() . '://covers' . DIRECTORY_SEPARATOR . $isbn . '.jpg';
+  $retrieved_file = $destination;
+  if (!is_file($destination)) {
+    $retrieved_file = FALSE;
+    $url = _primo_search_cover_url($isbn);
+    if ($url) {
+      $retrieved_file = system_retrieve_file($url, $destination, FALSE, FILE_EXISTS_REPLACE);
+    }
+  }
+  return $retrieved_file;
+}
+
+function primo_search_results_ajax($index) {
+  $options = array(
+    array('index' => '0',   'title' =>  t('Recent books')),
+    array('index' => '001', 'title' =>  t('Management')),
+    array('index' => '002', 'title' =>  t('Jura')),
+    array('index' => '003', 'title' =>  t('Politics')),
+    array('index' => '004', 'title' =>  t('Economy')),
+    array('index' => '005', 'title' =>  t('Organization and Leadership')),
+    array('index' => '006', 'title' =>  t('Other Literature')),
+  );
+
+  if ($index == 0) {
+    $subjects = array_map(function ($option) { return $option['index']; }, array_slice($options, 1));
+    $subject_id = implode('+OR+', $subjects);
+  }
+  else {
+    $subject_id = $options[$index]['index'];
+  }
+
+  $content = '';
+  $items = primo_search_get_items_by_subject($subject_id);
+
+  // If cache have been found theme search carousel pages.
+  if (!empty($items)) {
+    foreach ($items as $item) {
+      $field = _primo_search_filter_fields($item['attributes']);
+
+      // Skip items without image from the default category.
+      if ((!isset($field['image']) || !$field['image']) && $index == 0) {
+        continue;
+      }
+
+      $image_path = (isset($field['image']) && $field['image']) ? $field['image'] : drupal_get_path('module', 'primo_search') . '/img/default.png';
+      $image = theme_primo_image(array('style_name' => 'primo_carousel_cover', 'path' => $image_path));
+      $link = _primo_search_title_link($item['doc_number']);
+      $content .= theme(
+        'primo_carousel_cover',
+        array(
+          'image' => $image,
+          'link' => $link,
+          'title' => !empty($field['title']) ? $field['title'] : FALSE,
+        )
+      );
+    }
+
+  }
+
+  // Return JSON output.
+  drupal_json_output(array(
+    'title' => $options[$index]['title'],
+    'content' => $content,
+    'index' => $index,
+  ));
+  drupal_exit();
 }
