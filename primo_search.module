@@ -1,6 +1,12 @@
 <?php
 /**
  * @file
+ * Code for the Primo Search feature.
+ */
+
+include_once 'primo_search.features.inc';
+/**
+ * @file
  * Implementation of default hooks for primo service integration.
  */
 

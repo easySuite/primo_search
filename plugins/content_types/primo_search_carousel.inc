@@ -21,7 +21,6 @@ function primo_search_carousel_render($subtype, $conf, $args, $contexts) {
     '005' => t('Organization and Leadership'),
     '006' => t('Other Literature'),
   );
-
   // Theme primo search items.
   $params['image_style'] = 'primo_carousel_cover';
   $params['options'] = $options;
@@ -38,7 +37,8 @@ function primo_search_carousel_render($subtype, $conf, $args, $contexts) {
         $path . '/css/jquery.rs.carousel.css',
       ),
       'js' => array(
-        $path . '/js/jquery.rs.carousel.js' => array(),
+        $path . '/js/jquery.rs.carousel.js',
+        $path . '/js/primo_search.carousel.js',
       ),
     ),
   );
