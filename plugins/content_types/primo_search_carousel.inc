@@ -3,6 +3,9 @@
  * @file
  *   Define primo search carousel.
  */
+
+module_load_include('inc', 'primo_search', 'pages');
+
 $plugin = array(
   'single' => TRUE,
   'title' => t('Primo Search Carousel.'),
