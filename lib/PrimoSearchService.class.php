@@ -61,7 +61,7 @@ class PrimoSearchService {
       $items[$i]['attributes'] = $metadata->oai_marc;
 
       $doc_number = $res->doc_number;
-      if (!empty((string)$doc_number[0])) {
+      if ($doc_number) {
         $items[$i]['doc_number'] = (string) $doc_number[0];
       }
       $i++;
