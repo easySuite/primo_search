@@ -29,7 +29,7 @@
       $('.rs-carousel-inner .ajax-loader').addClass('element-hidden');
 
       // Update content.
-      $('.rs-carousel-title').html(data.title);
+      $('.rs-carousel-title').html(Drupal.t(data.title));
       $('.rs-carousel .rs-carousel-runner').append(data.content);
 
       // Show navigation arrows.
@@ -48,7 +48,6 @@
     function _fetch(index) {
       $.getJSON(
         Drupal.settings.basePath + 'primo/results/ajax/' + index).done(function(data) {
-
         cache[index] = {
           'content': data.content,
           'title': data.title

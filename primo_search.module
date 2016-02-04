@@ -55,6 +55,9 @@ function primo_search_ctools_plugin_directory($owner, $plugin_type) {
  */
 function primo_search_theme($existing, $type, $theme, $path) {
   return array(
+    'primo_search_subjects_table' => array(
+      'render element' => 'form',
+    ),
     'primo_search_item' => array(
       'variables' => array(),
       'template' => 'primo-search-item',
@@ -108,16 +111,47 @@ function theme_primo_image($variables) {
   return theme('image', $variables);
 }
 
+/**
+ * Theme subjects form as table
+ *
+ * @param $variables
+ * @return themed table
+ */
+function theme_primo_search_subjects_table(&$variables) {
+  $form = $variables['form'];
+  $header = $form['#header'];
+  foreach (element_children($form) as $id) {
+    if (is_numeric($id)) {
+      $row = array();
+      foreach (element_children($form[$id]) as $child_id) {
+        if ($child_id == 'values') {
+          $row[] = drupal_render($form[$id][$child_id]['type']) . drupal_render($form[$id][$child_id]['list']);
+        } else {
+          $row[] = drupal_render($form[$id][$child_id]);
+        }
+      }
+      $rows[] = $row;
+    }
+  }
+
+  $output = theme('table', array(
+    'header' => $header,
+    'rows' => $rows,
+  ));
+
+  $output .= drupal_render_children($form);
+
+  return $output;
+}
+
+/**
+ * Pass primo service content to the carousel.
+ *
+ * @param $index
+ */
 function primo_search_results_ajax($index) {
-  $options = array(
-    array('index' => '0',   'title' =>  t('Recent books')),
-    array('index' => '001', 'title' =>  t('Management')),
-    array('index' => '002', 'title' =>  t('Jura')),
-    array('index' => '003', 'title' =>  t('Politics')),
-    array('index' => '004', 'title' =>  t('Economy')),
-    array('index' => '005', 'title' =>  t('Organization and Leadership')),
-    array('index' => '006', 'title' =>  t('Other Literature')),
-  );
+  $options = variable_get('primo_search_subjects', array());
+  unset($options['more']);
 
   if ($index == 0) {
     $subjects = array_map(function ($option) { return $option['index']; }, array_slice($options, 1));
@@ -127,15 +161,16 @@ function primo_search_results_ajax($index) {
     $subject_id = $options[$index]['index'];
   }
 
-  $content = '';
-  $items = primo_search_get_items_by_subject($subject_id);
+  $count = variable_get('primo_search_carousel_items', 20);
+  $items = primo_search_get_items_by_subject($subject_id, $count);
 
   // If cache have been found theme search carousel pages.
+  $content = '';
   if (!empty($items)) {
     foreach ($items as $item) {
       $field = _primo_search_filter_fields($item['attributes']);
 
-      // Skip items without image from the default category.
+      // Skip items without image cover from the default category.
       if ((!isset($field['image']) || !$field['image']) && $index == 0) {
         continue;
       }
@@ -152,12 +187,11 @@ function primo_search_results_ajax($index) {
         )
       );
     }
-
   }
 
   // Return JSON output.
   drupal_json_output(array(
-    'title' => $options[$index]['title'],
+    'title' => $options[$index]['name'],
     'content' => $content,
     'index' => $index,
   ));

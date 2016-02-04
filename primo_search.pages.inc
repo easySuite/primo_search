@@ -9,11 +9,13 @@
  *
  * @param $subject_id
  *   Unique code that is passed to the primo find request.
+ * @param $count
+ *   How many items to request from service.
  *
  * @return array
  *   Array of primo raw items.
  */
-function primo_search_get_items_by_subject($subject_id) {
+function primo_search_get_items_by_subject($subject_id, $count = 50) {
   $primo_link = variable_get('primo_search_host', '');
   $ps = new PrimoSearchService($primo_link);
 
@@ -26,11 +28,10 @@ function primo_search_get_items_by_subject($subject_id) {
   $find = $ps->findPrimoItems($find_params);
 
   // Prepare parameters for present query.
-  $set_count = variable_get('primo_search_set_count', 50);
   $present_params = array(
     'format' => 'marc',
     'set_no' => $find->set_number,
-    'set_entry' => '000000001-' . $set_count,
+    'set_entry' => '000000001-' . $count,
   );
   $items = $ps->presentPrimoItems($present_params);
 
