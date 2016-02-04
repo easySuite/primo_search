@@ -100,6 +100,13 @@ function _primo_search_title_link($doc_number) {
     'vl(freeText0)' => $query,
     'fn' => 'search',
     'doc' => $query,
+    'scp.scps' => 'scope:(DABPR)',
+    'vid' => 'DAB',
+    'tab' => 'default_tab',
+    'srt' => 'rank',
+    'indx' => 1,
+    'dscnt' => 0,
+    'dum' => 'true',
   );
   $http_query = drupal_http_build_query($params);
   $bib_link = variable_get('primo_search_lib_url', '');
