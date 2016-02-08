@@ -88,10 +88,7 @@ function primo_search_admin_form($form, &$form_state) {
     '#type' => 'submit',
     '#value' => t('Save'),
   );
-  /**
-   * TODO: Need to add form for the $options array values.
-   * @see: primo_search_results_ajax, primo_search_select_form, _primo_search_theme_item, primo_search_carousel_render functions.
-   */
+
   return $form;
 }
 
@@ -115,6 +112,12 @@ function primo_search_subjects_more_submit($form, &$form_state) {
  */
 function primo_search_admin_form_submit($form, $form_state) {
   $subjects = $form_state['values']['subjects'];
+  unset($subjects['more']);
+
+  // Filter subjects before save.
+  $subjects = array_filter($subjects, function($s) {
+    return ($s['name'] != '') && ($s['index'] != '');
+  });
   variable_set('primo_search_subjects', $subjects);
 
   foreach ($form_state['values']['search'] as $k => $v) {

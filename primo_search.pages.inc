@@ -17,23 +17,31 @@
  */
 function primo_search_get_items_by_subject($subject_id, $count = 50) {
   $primo_link = variable_get('primo_search_host', '');
-  $ps = new PrimoSearchService($primo_link);
+  $items = array();
 
-  // Prepare parameters for find query.
-  $find_params = array(
-    'code' => 'wtv',
-    'base' => 'dabdab',
-    'request' => check_plain($subject_id),
-  );
-  $find = $ps->findPrimoItems($find_params);
+  try {
+    $ps = new PrimoSearchService($primo_link);
 
-  // Prepare parameters for present query.
-  $present_params = array(
-    'format' => 'marc',
-    'set_no' => $find->set_number,
-    'set_entry' => '000000001-' . $count,
-  );
-  $items = $ps->presentPrimoItems($present_params);
+    // Prepare parameters for find query.
+    $find_params = array(
+      'code' => 'wtv',
+      'base' => 'dabdab',
+      'request' => check_plain($subject_id),
+    );
+    $find = $ps->findPrimoItems($find_params);
+
+    // Prepare parameters for present query.
+    $present_params = array(
+      'format' => 'marc',
+      'set_no' => $find->set_number,
+      'set_entry' => '000000001-' . $count,
+    );
+    $items = $ps->presentPrimoItems($present_params);
+
+  }
+  catch (Exception $e) {
+    watchdog('primo_search', 'Unable to retrieve items from PRIMO SEARCH: %message', array('%message' => $e->getMessage()), WATCHDOG_ERROR);
+  }
 
   return $items;
 }
@@ -111,7 +119,8 @@ function _primo_search_title_link($doc_number) {
   );
   $http_query = drupal_http_build_query($params);
   $bib_link = variable_get('primo_search_lib_url', '');
-  $search_query = implode('?', array($bib_link, $http_query));
+
+  $search_query = ($http_query && $bib_link) ? implode('?', array($bib_link, $http_query)) : '';
 
   return $search_query;
 }
