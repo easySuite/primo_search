@@ -37,7 +37,9 @@ function primo_search_get_items_by_subject($subject_id, $count = 50) {
       'set_entry' => '000000001-' . $count,
     );
     $items = $ps->presentPrimoItems($present_params);
-
+    if (empty($items)) {
+      throw new Exception(t('Service could be not correctly configured. Please see the /admin/config/primo/search page'));
+    }
   }
   catch (Exception $e) {
     watchdog('primo_search', 'Unable to retrieve items from PRIMO SEARCH: %message', array('%message' => $e->getMessage()), WATCHDOG_ERROR);

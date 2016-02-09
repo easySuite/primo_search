@@ -35,25 +35,28 @@ function primo_search_items_render($subtype, $conf, $args, $contexts) {
   }
   $count = variable_get('primo_search_page_items', 50);
   $items = primo_search_get_items_by_subject($request, $count);
+  $output = '';
 
-  // Get the first item, as the main one.
-  $main_item = array_shift($items);
-  $form = drupal_get_form('primo_search_select_form', $arg, $arg_keys);
+  if (!empty($items)) {
+    // Get the first item, as the main one.
+    $main_item = array_shift($items);
+    $form = drupal_get_form('primo_search_select_form', $arg, $arg_keys);
 
-  $params = array(
-    'image_style' => 'primo_main',
-    'options' => $arg_keys,
-  );
-  // Theme the main item.
-  $output = _primo_search_theme_item($main_item, $params);
+    $params = array(
+      'image_style' => 'primo_main',
+      'options' => $arg_keys,
+    );
+    // Theme the main item.
+    $output = _primo_search_theme_item($main_item, $params);
 
-  // Render select form.
-  $output .= drupal_render($form);
+    // Render select form.
+    $output .= drupal_render($form);
 
-  // Theme primo search items.
-  $params['image_style'] = 'primo_thumb';
-  $params['options'] = $arg_keys;
-  $output .= _primo_search_theme_grid($items, $params);
+    // Theme primo search items.
+    $params['image_style'] = 'primo_thumb';
+    $params['options'] = $arg_keys;
+    $output .= _primo_search_theme_grid($items, $params);
+  }
 
   // Prepare block content to the output.
   $block = new stdClass();
