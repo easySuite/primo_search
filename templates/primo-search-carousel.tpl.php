@@ -10,9 +10,9 @@
     <?php if (count($tabs) > 1): ?>
       <div class="rs-carousel-tabs">
         <ul class="rs-carousel-list-tabs">
-          <?php foreach ($tabs as $key => $tab): ?>
+          <?php foreach ($tabs as $tab): ?>
             <li class="rs-carousel-item">
-              <a href="#"><?php print $tab; ?></a>
+              <a href="#"><?php print $tab['name']; ?></a>
             </li>
           <?php endforeach; ?>
         </ul>
@@ -21,7 +21,7 @@
         <select class="rs-carousel-select-tabs">
           <?php foreach ($tabs as $tab): ?>
             <option class="rs-carousel-item">
-              <?php print $tab; ?>
+              <?php print $tab['name']; ?>
             </option>
           <?php endforeach; ?>
         </select>

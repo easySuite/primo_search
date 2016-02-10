@@ -4,6 +4,8 @@
  *   Define main result as a highlighted book.
  */
 
+module_load_include('inc', 'primo_search', 'pages');
+
 $plugin = array(
   'single' => TRUE,
   'title' => t('Primo Search Results'),
@@ -16,32 +18,45 @@ $plugin = array(
  * Render primo search panel.
  */
 function primo_search_items_render($subtype, $conf, $args, $contexts) {
+  $subjects = variable_get('primo_search_subjects', array());
+  unset($subjects['more']);
+  $arg_keys = array();
+  foreach ($subjects as $subject) {
+    $arg_keys[$subject['index']] = $subject['name'];
+  }
+
   // Prepare arguments for most recent items.
-  $arg_keys = array('001', '002', '003', '004', '005', '006');
-  $request = implode('+OR+', $arg_keys);
+  $keys = array_slice(array_keys($arg_keys), 1);
+  $request = implode('+OR+', $keys);
   $arg = '0';
   if (isset($args[0]) && $args[0] != '0') {
     $request = $args[0];
     $arg = $args[0];
   }
+  $count = variable_get('primo_search_page_items', 50);
+  $items = primo_search_get_items_by_subject($request, $count);
+  $output = '';
 
-  $items = primo_search_get_items_by_subject($request);
-  // Get the first item, as the main one.
-  $main_item = array_shift($items);
-  $form = drupal_get_form('primo_search_select_form', $arg);
+  if (!empty($items)) {
+    // Get the first item, as the main one.
+    $main_item = array_shift($items);
+    $form = drupal_get_form('primo_search_select_form', $arg, $arg_keys);
 
-  $params = array(
-    'image_style' => 'primo_main',
-  );
-  // Theme the main item.
-  $output = _primo_search_theme_item($main_item, $params);
+    $params = array(
+      'image_style' => 'primo_main',
+      'options' => $arg_keys,
+    );
+    // Theme the main item.
+    $output = _primo_search_theme_item($main_item, $params);
 
-  // Render select form.
-  $output .= drupal_render($form);
+    // Render select form.
+    $output .= drupal_render($form);
 
-  // Theme primo search items.
-  $params['image_style'] = 'primo_thumb';
-  $output .= _primo_search_theme_grid($items, $params);
+    // Theme primo search items.
+    $params['image_style'] = 'primo_thumb';
+    $params['options'] = $arg_keys;
+    $output .= _primo_search_theme_grid($items, $params);
+  }
 
   // Prepare block content to the output.
   $block = new stdClass();
@@ -53,16 +68,7 @@ function primo_search_items_render($subtype, $conf, $args, $contexts) {
 /**
  * Select list to choose the books category.
  */
-function primo_search_select_form($form, &$form_state, $arg) {
-  $options = array(
-    '0'   => t('Recent books'),
-    '001' => t('Management'),
-    '002' => t('Jura'),
-    '003' => t('Politics'),
-    '004' => t('Economy'),
-    '005' => t('Organization and Leadership'),
-    '006' => t('Other Literature'),
-  );
+function primo_search_select_form($form, &$form_state, $arg, $options) {
   $path = drupal_get_path('module', 'primo_search');
   $form['requests'] = array(
     '#type' => 'select',
@@ -98,15 +104,7 @@ function primo_search_select_form($form, &$form_state, $arg) {
  *   Rendered string.
  */
 function _primo_search_theme_item($item, $params) {
-  $options = array(
-    '0'   => t('Recent books'),
-    '001' => t('Management'),
-    '002' => t('Jura'),
-    '003' => t('Politics'),
-    '004' => t('Economy'),
-    '005' => t('Organization and Leadership'),
-    '006' => t('Other Literature'),
-  );
+  $options = $params['options'];
 
   $field = _primo_search_filter_fields($item['attributes']);
 
@@ -126,7 +124,7 @@ function _primo_search_theme_item($item, $params) {
       'title' => !empty($field['title']) ? $field['title'] : FALSE,
       'title_link' => $link,
       'image' => $image,
-      'category' => $category,
+      'category' => t($category),
       'author_name' => !empty($field['author_name']) ? $field['author_name'] : FALSE,
       'author_surname' => !empty($field['author_surname']) ? $field['author_surname'] : FALSE,
       'udg' => !empty($field['udg']) ? $field['udg'] : FALSE,

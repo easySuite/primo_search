@@ -3,6 +3,9 @@
  * @file
  *   Define primo search carousel.
  */
+
+module_load_include('inc', 'primo_search', 'pages');
+
 $plugin = array(
   'single' => TRUE,
   'title' => t('Primo Search Carousel.'),
@@ -12,18 +15,12 @@ $plugin = array(
 );
 
 function primo_search_carousel_render($subtype, $conf, $args, $contexts) {
-  $options = array(
-    '0'   => t('Recent books'),
-    '001' => t('Management'),
-    '002' => t('Jura'),
-    '003' => t('Politics'),
-    '004' => t('Economy'),
-    '005' => t('Organization and Leadership'),
-    '006' => t('Other Literature'),
-  );
+  $subjects = variable_get('primo_search_subjects', array());
+  unset($subjects['more']);
+
   // Theme primo search items.
   $params['image_style'] = 'primo_carousel_cover';
-  $params['options'] = $options;
+  $params['options'] = $subjects;
   $output = _primo_search_theme_carousel($params);
 
   // Prepare block content to the output.
