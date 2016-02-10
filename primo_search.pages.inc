@@ -30,15 +30,14 @@ function primo_search_get_items_by_subject($subject_id, $count = 50) {
     );
     $find = $ps->findPrimoItems($find_params);
 
-    // Prepare parameters for present query.
-    $present_params = array(
-      'format' => 'marc',
-      'set_no' => $find->set_number,
-      'set_entry' => '000000001-' . $count,
-    );
-    $items = $ps->presentPrimoItems($present_params);
-    if (empty($items)) {
-      throw new Exception(t('Service could be not correctly configured. Please see the /admin/config/primo/search page'));
+    if ($find) {
+      // Prepare parameters for present query.
+      $present_params = array(
+        'format' => 'marc',
+        'set_no' => $find->set_number,
+        'set_entry' => '000000001-' . $count,
+      );
+      $items = $ps->presentPrimoItems($present_params);
     }
   }
   catch (Exception $e) {

@@ -9,6 +9,9 @@ class PrimoSearchService {
   private $url;
 
   public function __construct($url) {
+    if (!$url) {
+      throw new Exception(t('Url is empty.'));
+    }
     $this->url = $url;
   }
 
@@ -39,7 +42,11 @@ class PrimoSearchService {
   public function presentPrimoItems($params) {
     $params['op'] = 'present';
     $results = $this->getPrimoItems($params);
-    $items = $this->filterPrimoItems($results);
+
+    $items = array();
+    if ($results) {
+      $items = $this->filterPrimoItems($results);
+    }
 
     return $items;
   }
