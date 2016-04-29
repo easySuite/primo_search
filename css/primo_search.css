@@ -1,11 +1,12 @@
 .primo-image {
   float: left;
   margin: 20px;
+  margin-left: 0px;
 }
 .primo-content {
   float: left;
   margin-top: 15px;
-  width: 80%;
+  width: 65%;
   line-height: 20px;
 }
 #primo-search-select-form {
@@ -14,10 +15,14 @@
 }
 .primo-search-results {
   clear: left;
+  overflow: hidden;
+  padding-bottom: 40px;
 }
 .primo-search-item {
   float: left;
   width: 50%;
+  max-height: 132px;
+  overflow: hidden;
 }
 .primo-search-item h2.primo-title {
   font-size: 120%;
@@ -192,4 +197,39 @@
 .rs-carousel-tabs .rs-carousel-list-tabs .rs-carousel-item a {
   white-space: nowrap;
   padding: 10px;
+}
+
+@media only screen and (max-width: 768px) {
+  .primo-search-results .primo-item {
+    overflow: hidden;
+  }
+  
+  .primo-search-results .primo-search-item {
+    width: 100%;
+  }
+
+  .primo-item h2 {
+    font-size: 120%;
+  }
+  
+  .primo-item .primo-image {
+    float: left;
+    margin: 20px 0;
+    width: 25%;
+    margin-left: 0px;
+  }
+  
+  .primo-item .primo-content {
+    width: 70%;
+    float: right;
+  }
+  
+  .primo-search-results .primo-search-item .primo-item  .primo-content {
+    float: right;
+    width: 80%;
+  }
+  
+  .primo-search-results .primo-search-item .primo-item  .primo-image {
+    width: 20%;
+  }
 }
